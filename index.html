@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Ad Aliso</title>
+        <meta name="description" content="A text- and ASCII-forward RPG">
+        <style>
+            body {
+                margin: 1rem;
+                background: #111;
+                color: #ddd;
+                font-family: system-ui, sans-serif;
+            }
+            #map-canvas {
+                display: block;
+                image-rendering: pixelated;
+                border: 1px solid #333;
+                margin-top: 0.75rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Ad Aliso</h1>
+        <p>Region sketch — <code>@</code> marks the current location (<code>teutoburg_fringe</code>).</p>
+        <canvas id="map-canvas" aria-label="ASCII region map"></canvas>
+        <script type="module" src="scripts/main.js"></script>
+    </body>
+</html>
