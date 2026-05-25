@@ -16,66 +16,119 @@ class World {
 
     /** @type {Record<string, { id: string, title?: string, mapPos?: { x: number, y: number }, exits?: Record<string, string | { to: string, cost?: number }> }>} */
     static places = {
-        teutoburg_fringe: {
-            id: 'teutoburg_fringe',
-            title: 'Forest fringe',
-            mapPos: { x: 0, y: 0 },
-            exits: {
-                west: 'broken_milestone',
-            },
-        },
-        broken_milestone: {
-            id: 'broken_milestone',
-            title: 'Broken milestone',
-            mapPos: { x: -1, y: 0 },
-            exits: {
-                east: 'teutoburg_fringe',
-                west: { to: 'river_ford', cost: 1 },
-                north: 'ridge_trail',
-            },
-        },
         river_ford: {
             id: 'river_ford',
             title: 'River ford',
-            mapPos: { x: -2, y: 0 },
+            mapPos: { x: 6, y: 0 },
             exits: {
-                east: 'broken_milestone',
-                north: { to: 'marshes_edge', cost: 2 },
-            },
-        },
-        ridge_trail: {
-            id: 'ridge_trail',
-            title: 'Ridge trail',
-            mapPos: { x: -1, y: -1 },
-            exits: {
-                south: 'broken_milestone',
-                west: 'long_march_west',
+                west: 'marshes_edge',
             },
         },
         marshes_edge: {
             id: 'marshes_edge',
             title: "Marshes' edge",
-            mapPos: { x: -2, y: -1 },
+            mapPos: { x: 3, y: 0 },
             exits: {
-                south: { to: 'river_ford', cost: 2 },
-                west: 'long_march_west',
+                east: 'river_ford',
+                west: 'teutoburg_fringe',
             },
         },
-        long_march_west: {
-            id: 'long_march_west',
-            title: 'Western road fragment',
-            mapPos: { x: -3, y: -1 },
+        teutoburg_fringe: {
+            id: 'teutoburg_fringe',
+            title: 'Forest fringe',
+            mapPos: { x: 0, y: 0 },
             exits: {
-                east: 'ridge_trail',
+                east: 'marshes_edge',
+                west: 'corduroy_road',
+                north: 'ridge_trail',
+                south: 'alpine_forest_and_ravines',
+            },
+        },
+        corduroy_road: {
+            id: 'corduroy_road',
+            title: 'Corduroy road',
+            mapPos: { x: -3, y: 0 },
+            exits: {
+                east: 'teutoburg_fringe',
+                west: 'lippe_valley',
+            },
+        },
+        lippe_valley: {
+            id: 'lippe_valley',
+            title: 'Lippe valley',
+            mapPos: { x: -6, y: 0 },
+            exits: {
+                east: 'corduroy_road',
+                west: 'scorched_land',
+            },
+        },
+        scorched_land: {
+            id: 'scorched_land',
+            title: 'Scorched land',
+            mapPos: { x: -9, y: 0 },
+            exits: {
+                east: 'lippe_valley',
                 west: 'aliso_gate',
             },
         },
         aliso_gate: {
             id: 'aliso_gate',
             title: 'Aliso gate',
-            mapPos: { x: -4, y: -1 },
+            mapPos: { x: -12, y: 0 },
             exits: {
-                east: 'long_march_west',
+                east: 'scorched_land',
+            },
+        },
+        ridge_trail: {
+            id: 'ridge_trail',
+            title: 'Ridge trail',
+            mapPos: { x: 0, y: -2 },
+            exits: {
+                south: 'teutoburg_fringe',
+                north: 'peat_bog_wetlands',
+            },
+        },
+        peat_bog_wetlands: {
+            id: 'peat_bog_wetlands',
+            title: 'Peat bog wetlands',
+            mapPos: { x: 0, y: -4 },
+            exits: {
+                south: 'ridge_trail',
+                west: 'ems_riverbank',
+                east: 'bog_turlough',
+                north: 'ampsivarii_outpost',
+            },
+        },
+        ems_riverbank: {
+            id: 'ems_riverbank',
+            title: 'Ems riverbank',
+            mapPos: { x: -3, y: -4 },
+            exits: {
+                east: 'peat_bog_wetlands',
+            },
+        },
+        bog_turlough: {
+            id: 'bog_turlough',
+            title: 'Bog turlough',
+            mapPos: { x: 3, y: -4 },
+            exits: {
+                west: 'peat_bog_wetlands',
+            },
+        },
+        ampsivarii_outpost: {
+            id: 'ampsivarii_outpost',
+            title: 'Ampsivarii outpost',
+            mapPos: { x: 0, y: -6 },
+            exits: {
+                south: 'peat_bog_wetlands',
+            },
+        },
+        alpine_forest_and_ravines: {
+            id: 'alpine_forest_and_ravines',
+            title: 'Alpine forest and ravines',
+            mapPos: { x: 0, y: 4 },
+            exits: {
+                north: 'teutoburg_fringe',
             },
         },
     };

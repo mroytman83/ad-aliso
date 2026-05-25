@@ -5,6 +5,7 @@
 
 import { stableHash32, mulberry32 } from './util/random.js';
 import { borderMask } from './regions/voronoi.js';
+import { VIEWPORT_COLS, VIEWPORT_ROWS, extractViewport } from './viewport.js';
 
 function padSprite(lines) {
     const w = Math.max(...lines.map((s) => s.length));
@@ -310,8 +311,13 @@ export function buildWorldAsciiGrid(World, opts = {}) {
         const decorRndBase = mulberry32(stableHash32(`${decorSeedSalt}|props|${worldMap.worldSeed}`));
         for (const region of Object.values(worldMap.regions)) {
             if (!region.bbox || region.propDensity <= 0) continue;
-            const sprite =
-                decorRndBase() < region.propBeechBias ? SPRITE_BEECH : SPRITE_PINE;
+            if (region.propStyle === 'none') continue;
+            let sprite;
+            if (region.propStyle === 'pine') {
+                sprite = SPRITE_PINE;
+            } else {
+                sprite = decorRndBase() < region.propBeechBias ? SPRITE_BEECH : SPRITE_PINE;
+            }
             const { w: sw, h: sh } = spriteSize(sprite);
             const rnd = mulberry32(stableHash32(`${worldMap.worldSeed}|scatter|${region.id}`));
 
@@ -420,4 +426,18 @@ export function drawGridOnCanvas(canvas, grid, style = {}) {
 export function renderWorldMap(canvas, World, opts = {}) {
     const { grid } = buildWorldAsciiGrid(World, opts);
     drawGridOnCanvas(canvas, grid);
+}
+
+/**
+ * Draw a fixed-size window into a full world grid.
+ * @param {HTMLCanvasElement} canvas
+ * @param {string[][]} fullGrid
+ * @param {{ ox: number, oy: number, cols?: number, rows?: number }} camera
+ * @param {Parameters<typeof drawGridOnCanvas>[2]} [style]
+ */
+export function renderViewport(canvas, fullGrid, camera, style = {}) {
+    const viewCols = camera.cols ?? VIEWPORT_COLS;
+    const viewRows = camera.rows ?? VIEWPORT_ROWS;
+    const slice = extractViewport(fullGrid, camera.ox, camera.oy, viewCols, viewRows);
+    drawGridOnCanvas(canvas, slice, style);
 }
