@@ -48,7 +48,67 @@ const EVENT_TEXT = {
     ravine_echo: 'Your footsteps echo off slate walls. There is no easy way out.',
     timber_barrier: 'Fallen timber seals the path behind you. They planned this.',
     suebi_horn: 'A horn blasts from the ridge — Suebi mercenaries, knot-haired and hungry.',
+    vulture_imp_ambush:
+        'Shapes lurch from the mud — bird-skull masks, stolen plate clutched to sunken chests.',
+    anglii_framea_boat_ambush:
+        'A dugout cuts through the mist — Anglii frameati, paddles biting the current.',
 };
+
+const AMBUSH_TEXT = {
+    vulture_imp: 'vulture_imp_ambush',
+    anglii_framea_boat: 'anglii_framea_boat_ambush',
+};
+
+/** Ally encounter chance by region id. */
+const ALLY_ENCOUNTER_ODDS = {
+    marshes_edge: 0.35,
+};
+
+/** Battle chance when entering a new region (tune per terrain later). */
+const ENCOUNTER_CHANCE = {
+    default: 0.12,
+    forest: 0.25,
+    marsh: 0.25,
+    reeds: 0.28,
+    road: 0.1,
+    peat_bog: 0.2,
+    river: 0.22,
+    scorched: 0.18,
+};
+
+/**
+ * @param {{ terrain?: string }} region
+ * @param {() => number} rng
+ */
+export function rollEncounter(region, rng) {
+    const terrain = region?.terrain ?? 'default';
+    const chance = ENCOUNTER_CHANCE[terrain] ?? ENCOUNTER_CHANCE.default;
+    if (rng() >= chance) return null;
+
+    if (terrain === 'river') {
+        return { type: 'battle', enemyId: 'anglii_framea_boat' };
+    }
+
+    return { type: 'battle', enemyId: 'vulture_imp' };
+}
+
+/**
+ * @param {string} regionId
+ * @param {{ terrain?: string, placeId?: string | null }} region
+ * @param {() => number} rng
+ */
+export function rollAllyEncounter(regionId, region, rng) {
+    const isMarshesEdge = regionId === 'marshes_edge' || region?.placeId === 'marshes_edge';
+    if (!isMarshesEdge) return null;
+    const odds = ALLY_ENCOUNTER_ODDS.marshes_edge;
+    if (rng() >= odds) return null;
+    return {
+        type: 'ally',
+        allyTemplateId: 'straggler_legionary',
+        encounterId: 'legionary_straggler_found',
+        text: 'A battered legionary stumbles from the reeds, shield splintered but eyes clear.',
+    };
+}
 
 /**
  * @param {{ eventPool?: string[], terrain?: string }} region
@@ -77,12 +137,49 @@ export function onEnterRegion(gameState, regionId, worldMap, atPoint = null) {
     const rnd = mulberry32(
         stableHash32(`${worldMap.worldSeed}|region|${regionId}|${gameState.enterCount ?? 0}`),
     );
-    const event = rollRegionEvent(region, rnd);
     const point =
         atPoint ??
         randomPointInRegion(region.bbox, worldMap.regionIndex, region.seedIndex, rnd);
 
-    const placeId = region.placeId ?? gameState.player.locationId;
+    const encounter = rollEncounter(region, rnd);
+    if (encounter?.type === 'battle') {
+        const ambushId = AMBUSH_TEXT[encounter.enemyId] ?? 'vulture_imp_ambush';
+        return {
+            ...gameState,
+            lastRegionId: regionId,
+            lastPlaceId: region.placeId ?? gameState.lastPlaceId,
+            enterCount: (gameState.enterCount ?? 0) + 1,
+            lastEvent: {
+                id: ambushId,
+                text: EVENT_TEXT[ambushId] ?? EVENT_TEXT.vulture_imp_ambush,
+            },
+            lastEventPoint: point,
+            pendingBattle: encounter.enemyId,
+            pendingAllyEncounter: null,
+        };
+    }
+
+    const allyEncounter = rollAllyEncounter(regionId, region, rnd);
+    if (allyEncounter?.type === 'ally') {
+        return {
+            ...gameState,
+            lastRegionId: regionId,
+            lastPlaceId: region.placeId ?? gameState.lastPlaceId,
+            enterCount: (gameState.enterCount ?? 0) + 1,
+            lastEvent: {
+                id: allyEncounter.encounterId,
+                text: allyEncounter.text,
+            },
+            lastEventPoint: point,
+            pendingBattle: null,
+            pendingAllyEncounter: {
+                templateId: allyEncounter.allyTemplateId,
+                encounterId: allyEncounter.encounterId,
+            },
+        };
+    }
+
+    const event = rollRegionEvent(region, rnd);
 
     return {
         ...gameState,
@@ -91,6 +188,8 @@ export function onEnterRegion(gameState, regionId, worldMap, atPoint = null) {
         enterCount: (gameState.enterCount ?? 0) + 1,
         lastEvent: event,
         lastEventPoint: point,
+        pendingBattle: null,
+        pendingAllyEncounter: null,
     };
 }
 

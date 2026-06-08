@@ -27,6 +27,40 @@
             #map-viewport:focus-within {
                 border-color: #666;
             }
+            #battle-screen {
+                display: none;
+                margin-top: 0.75rem;
+            }
+            #battle-screen.active {
+                display: inline-block;
+            }
+            #battle-canvas {
+                display: block;
+                image-rendering: pixelated;
+                border: 1px solid #333;
+            }
+            #battle-screen:focus-within {
+                border-color: #666;
+            }
+            #loot-open-screen,
+            #loot-contents-screen {
+                display: none;
+                margin-top: 0.75rem;
+            }
+            #loot-open-screen.active,
+            #loot-contents-screen.active {
+                display: inline-block;
+            }
+            #loot-open-canvas,
+            #loot-contents-canvas {
+                display: block;
+                image-rendering: pixelated;
+                border: 1px solid #333;
+            }
+            #loot-open-screen:focus-within,
+            #loot-contents-screen:focus-within {
+                border-color: #666;
+            }
             .hint {
                 font-size: 0.9rem;
                 color: #999;
@@ -41,7 +75,16 @@
         <div id="map-viewport">
             <canvas id="map-canvas" aria-label="ASCII region map viewport"></canvas>
         </div>
-        <p class="hint">Click the map, then walk with arrows or WASD. Only an 80×24 window of the world is shown — the view follows you. Trees block you; crossing a border enters a new territory and may trigger an event.</p>
-        <script type="module" src="scripts/main.js?v=5"></script>
+        <div id="battle-screen" tabindex="0" aria-label="Battle">
+            <canvas id="battle-canvas" aria-label="Pokemon-style ASCII battle"></canvas>
+        </div>
+        <div id="loot-open-screen" tabindex="0" aria-label="Bag opening">
+            <canvas id="loot-open-canvas" aria-label="Animated loot bag"></canvas>
+        </div>
+        <div id="loot-contents-screen" tabindex="0" aria-label="Loot contents">
+            <canvas id="loot-contents-canvas" aria-label="Loot pickup menu"></canvas>
+        </div>
+        <p class="hint">Walk with arrows/WASD. Near a <code>$</code> bag, press Enter or E to open. In battle: arrows + Enter for FIGHT or RUN.</p>
+        <script type="module" src="scripts/main.js?v=9"></script>
     </body>
 </html>
